@@ -16,20 +16,31 @@ const data = {
   },
   insert : function (reqBody) {
     const jsonData = data.select();
-    let newData = [...jsonData, {id: jsonData.length+1, ...reqBody}];
+    let newData = [...jsonData, {id: Date.now(), ...reqBody}];
     fs.writeFileSync("./test.json", JSON.stringify(newData));
     return newData;
   },
   delete : function() {},
-  update : function() {},
+  update : function(msg) {
+    const jsonData = data.select();
+    let putData = jsonData.map(item=>{
+      if (item.name == "11") {
+        item.msg = msg;
+      }
+      return item;
+    });
+    fs.writeFileSync(`./test.json`, JSON.stringify(putData));
+  return putData;
+  },
 }
 
-app.get('/abc', function (req, res) {
+app.get(`/abc`, function (req, res) {
   res.send(data.select());
 });
 
 app.post("/insert", function(req, res) {
   res.send(data.insert(req.body));
+  console.log(req.body);
 })
 
 app.delete("/abc/:id", function(req, res) {
@@ -39,6 +50,10 @@ app.delete("/abc/:id", function(req, res) {
 
   fs.writeFileSync("./test.json", JSON.stringify(delData));
   res.send(delData);
+})
+
+app.put(`/update`, function(req, res) {
+  res.send(data.update(req.body.msg));
 })
 
 
